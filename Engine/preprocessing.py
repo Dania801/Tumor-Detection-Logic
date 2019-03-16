@@ -10,9 +10,9 @@ def readImage(path):
   Read an image from a given path and display it
   @params path
   """
-  img = cv.imread(path, cv.IMREAD_COLOR);
-  imgGray = cv.cvtColor(img, cv.COLOR_BGR2GRAY);
-  cv.imshow('image',imgGray)
+  image = cv.imread(path, cv.IMREAD_COLOR);
+  imageGray = cv.cvtColor(image, cv.COLOR_BGR2GRAY);
+  cv.imshow('image',imageGray)
   cv.waitKey(0)
   cv.destroyAllWindows()
 
@@ -22,8 +22,8 @@ def convertDatasetToGray(path):
   @params path
   """
   for count, fileName in enumerate(glob.glob(path)):
-    img = readImage(fileName)
-    cv.imwrite('../Data/CT_gray/{0}.jpg'.format(count+1),img)
+    image = readImage(fileName)
+    cv.imwrite('../Data/CT_gray/{0}.jpg'.format(count+1),image)
 
 def histogramEqualization(path):
   """
@@ -31,10 +31,10 @@ def histogramEqualization(path):
   @params path
   """
   for count, fileName in enumerate(glob.glob(path)):
-    img = cv.imread(fileName, cv.IMREAD_GRAYSCALE);
-    imageEnhanced = cv.equalizeHist(img)
-    stackedImages = np.hstack((img,imageEnhanced))
-    cv.imshow('image', stackedImages)
+    image = cv.imread(fileName, cv.IMREAD_GRAYSCALE);
+    imageEnhanced = cv.equalizeHist(image)
+    stackedImages = np.hstack((image,imageEnhanced))
+    cv.imshow('image {0}'.format(count+1), stackedImages)
     cv.waitKey(0)
     cv.destroyAllWindows()
 
@@ -44,11 +44,11 @@ def Clahe(path):
   @params path
   """
   for count, fileName in enumerate(glob.glob(path)):
-    img = cv.imread(fileName, cv.IMREAD_GRAYSCALE);
+    image = cv.imread(fileName, cv.IMREAD_GRAYSCALE);
     clahe = cv.createCLAHE(clipLimit=10.0, tileGridSize=(8,8))
-    cl1 = clahe.apply(img)
-    stackedImages = np.hstack((img,cl1))
-    cv.imshow('image', stackedImages)
+    appliedClahe = clahe.apply(image)
+    stackedImages = np.hstack((image,appliedClahe))
+    cv.imshow('image {0}'.format(count+1), stackedImages)
     cv.waitKey(0)
     cv.destroyAllWindows()
 
@@ -59,16 +59,16 @@ def smoothDataset(path):
   @params path
   """
   for count, fileName in enumerate(glob.glob(path)):
-    img = cv.imread(fileName, cv.IMREAD_GRAYSCALE);
-    resized = imutils.resize(img, width=300)
-    ratio = img.shape[0] / float(resized.shape[0])
-    blurred = cv.GaussianBlur(resized, (5, 5), 0)
+    image = cv.imread(fileName, cv.IMREAD_GRAYSCALE);
+    resizedImage = imutils.resize(image, width=300)
+    blurredImage = cv.GaussianBlur(resizedImage, (5,5), cv.BORDER_DEFAULT)
     kernelSharpening = np.array([[-1,-1,-1], 
                                  [-1, 9,-1],
                                  [-1,-1,-1]])
-    sharpened = cv.filter2D(img, -1, kernelSharpening)
-    cv.imwrite('../Data/CT_smoothed/{0}.jpg'.format(count+1),sharpened)
-    cv.imshow('img', sharpened)
+    sharpened = cv.filter2D(resizedImage, -1, kernelSharpening)
+    cv.imwrite('../Data/CT_smoothed/{0}.jpg'.format(count+1),blurredImage)
+    cv.imwrite('../Data/CT_sharpened/{0}.jpg'.format(count+1), sharpened)
+    cv.imshow('image {0}'.format(count+1), blurredImage)
     cv.waitKey(0)
     cv.destroyAllWindows()
 
@@ -78,17 +78,39 @@ def erodeAndDilate(path):
   @params path
   """
   for count, fileName in enumerate(glob.glob(path)):
-    img = cv.imread(fileName, cv.IMREAD_GRAYSCALE);
-    resized = imutils.resize(img, width=300)
-    ratio = img.shape[0] / float(resized.shape[0])
-    blurred = cv.GaussianBlur(resized, (5, 5), 0)
-    thresh = cv.threshold(blurred, 60, 255, cv.THRESH_BINARY)[1]
+    image = cv.imread(fileName, cv.IMREAD_GRAYSCALE);
+    (thresh, imageBW) = cv.threshold(image, 128, 255, cv.THRESH_BINARY | cv.THRESH_OTSU)
+    #thresh = cv.threshold(resized, 60, 255, cv.THRESH_BINARY)[1]
     kernel = np.ones((5, 5), np.uint8)
-    imgErosion = cv.erode(thresh, kernel, iterations=1)
-    imgDilation = cv.dilate(imgErosion, kernel, iterations=1)
-    cv.imshow('img', thresh)
+    imageErosion = cv.erode(imageBW, kernel, iterations=1)
+    imageDilation = cv.dilate(imageErosion, kernel, iterations=1)
+    stackedImages = np.hstack((imageDilation, image))
+    cv.imwrite('../Data/CT_raw/{0}.jpg'.format(count+1), imageDilation)
+    cv.imshow('image {0}'.format(count+1), stackedImages)
     cv.waitKey(0)
     cv.destroyAllWindows()
+
+def detectBrain(path):
+  """
+  Detect brain boundries by detecting all contours of image and selecting the largest contour to be the brain.
+  @params path
+  """
+  for count, fileName in enumerate(glob.glob(path)):
+    image = cv.imread(fileName, cv.IMREAD_COLOR);
+    image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+    (thresh, imageBW) = cv.threshold(image, 128, 255, cv.THRESH_BINARY | cv.THRESH_OTSU)
+    contours, hierarchy = cv.findContours(imageBW, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+    if len(contours) != 0:
+      largestContour = max(contours, key=cv.contourArea)
+      (x,y),radius = cv.minEnclosingCircle(largestContour)
+      center = (int(x),int(y))
+      radius = int(radius)
+      image = cv.circle(image,center,radius,(150,70,50),3)
+      cv.imwrite('../Data/CT_detected/{0}.jpg'.format(count+1), image)
+      cv.imshow('image',image)
+      cv.waitKey(0)
+      cv.destroyAllWindows()
+
 
 def preprocessingScript():
   """
@@ -97,11 +119,13 @@ def preprocessingScript():
   datasetPath = '../Data/CT/*.jpg'
   grayDatasetPath = '../Data/CT_gray/*.jpg'
   smoothedDataPath = '../Data/CT_smoothed/*.jpg'
-  #convertDatasetToGray(datasetPath)
-  # the following two methods can be used for increasing contrast (we need to choose which one is better)
-  #histogramEqualization(datasetPath)
-  #Clahe(datasetPath)
-  #smoothDataset(datasetPath)
+  rawDatasetPath = '../Data/CT_raw/*.jpg'
+  convertDatasetToGray(datasetPath)
+  the following two methods can be used for increasing contrast (we need to choose which one is better)
+  histogramEqualization(datasetPath)
+  Clahe(datasetPath)
+  smoothDataset(datasetPath)
   erodeAndDilate(smoothedDataPath)
+  detectBrain(rawDatasetPath)
 
 preprocessingScript()
