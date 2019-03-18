@@ -90,12 +90,31 @@ def erodeAndDilate(path):
     cv.waitKey(0)
     cv.destroyAllWindows()
 
+def cropImage(image, contour, index):
+  """
+  Crops an image according to a defined contour, then store the image and return it. 
+  @params image
+  @params contour: eliptic shaped figure that represents the brain
+  @params index: image index in the dataset
+  @rtype image  
+  """
+  xRect, yRect, wRect, hRect = cv.boundingRect(contour)
+  croppedImage = image[yRect: yRect+hRect,
+               xRect: xRect+wRect]
+  cv.imwrite('../Data/CT_cropped/{0}.jpg'.format(index+1), croppedImage)
+  cv.imshow('image {0}'.format(index+1),croppedImage)
+  cv.waitKey(0)
+  cv.destroyAllWindows()
+  return croppedImage 
+
 def detectBrain(path):
   """
   Detect brain boundries by detecting all contours of image and selecting the largest contour to be the brain.
   @params path
   """
   for count, fileName in enumerate(glob.glob(path)):
+    actualImage = cv.imread('../Data/CT_sharpened/{0}.jpg'.format(count+1), cv.IMREAD_COLOR)
+    # actualImage = imutils.resize(actualImage, width=200)
     image = cv.imread(fileName, cv.IMREAD_COLOR);
     image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     (thresh, imageBW) = cv.threshold(image, 128, 255, cv.THRESH_BINARY | cv.THRESH_OTSU)
@@ -105,9 +124,11 @@ def detectBrain(path):
       (x,y),radius = cv.minEnclosingCircle(largestContour)
       center = (int(x),int(y))
       radius = int(radius)
-      image = cv.circle(image,center,radius,(150,70,50),3)
-      cv.imwrite('../Data/CT_detected/{0}.jpg'.format(count+1), image)
-      cv.imshow('image',image)
+      croppedImage = cropImage(image, largestContour, count)
+      imageCircled = cv.circle(image,center,radius,(150,70,50),3)
+      # stackedImages = np.hstack((image, actualImage))
+      cv.imwrite('../Data/CT_detected/{0}.jpg'.format(count+1), imageCircled)
+      cv.imshow('image {0}'.format(count+1),imageCircled)
       cv.waitKey(0)
       cv.destroyAllWindows()
 
@@ -120,12 +141,12 @@ def preprocessingScript():
   grayDatasetPath = '../Data/CT_gray/*.jpg'
   smoothedDataPath = '../Data/CT_smoothed/*.jpg'
   rawDatasetPath = '../Data/CT_raw/*.jpg'
-  convertDatasetToGray(datasetPath)
-  the following two methods can be used for increasing contrast (we need to choose which one is better)
-  histogramEqualization(datasetPath)
-  Clahe(datasetPath)
-  smoothDataset(datasetPath)
-  erodeAndDilate(smoothedDataPath)
-  detectBrain(rawDatasetPath)
+  # convertDatasetToGray(datasetPath)
+  # the following two methods can be used for increasing contrast (we need to choose which one is better)
+  # histogramEqualization(datasetPath)
+  # Clahe(datasetPath)
+  # smoothDataset(datasetPath)
+  # erodeAndDilate(smoothedDataPath)
+  detectBrain(datasetPath)
 
 preprocessingScript()
