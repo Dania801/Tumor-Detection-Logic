@@ -3,6 +3,7 @@ import cv2 as cv
 import glob
 from matplotlib import pyplot as plt
 import imutils
+from collections import Counter
 
 def readPreprocessedDataset(path):
   """
@@ -37,7 +38,7 @@ def meanGray(images, maxGray, minGray):
     imagePixels = 0
   return meanGrayValues
 
-def StdGray(images, maxGray, minGray):
+def stdGray(images, maxGray, minGray):
   """
   Finds standard deviation of gray values.
   @params images: list of dataset images
@@ -55,11 +56,29 @@ def StdGray(images, maxGray, minGray):
   return stdValues
   
 
+def modalGray(images, maxGray, minGray):
+  """
+  Find modal of gray values. 
+  @params images: list of dataset images
+  @params maxGray: max gray degree
+  @params minGray: min gray degree
+  @rtype {list}: modal values for each image.
+  """
+  modalValues = []
+  for image in images: 
+    numpyImage = np.array(image)
+    flattenImage = numpyImage.flatten()
+    grayValues = [pixel for pixel in flattenImage if pixel >= maxGray and pixel <= minGray]
+    modeValue = Counter(grayValues).most_common(1)
+    modalValues.append(modeValue[0][0])
+  return modalValues
+
 def featureExtractionScript():
   maxGray = 150 
   minGray = 210 
   images = readPreprocessedDataset('../Data/CT_cropped/*.jpg')
   meanGrayValues = meanGray(images, maxGray, minGray)
-  stdGrayValues = StdGray(images, maxGray, minGray)
+  stdGrayValues = stdGray(images, maxGray, minGray)
+  modalGrayValues = modalGray(images, maxGray, minGray)
 
 featureExtractionScript()
