@@ -4,6 +4,7 @@ import glob
 from matplotlib import pyplot as plt
 import imutils
 from collections import Counter
+from preprocessing import *
 
 def readPreprocessedDataset(path):
   """
@@ -80,5 +81,6 @@ def featureExtractionScript():
   meanGrayValues = meanGray(images, maxGray, minGray)
   stdGrayValues = stdGray(images, maxGray, minGray)
   modalGrayValues = modalGray(images, maxGray, minGray)
+  circularityValues = getCircularityValues()
 
 featureExtractionScript()
