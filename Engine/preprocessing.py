@@ -3,6 +3,7 @@ import cv2 as cv
 import glob
 from matplotlib import pyplot as plt
 import imutils
+import math
 
 
 def readImage(path):
@@ -120,6 +121,12 @@ def calculateCircularity(contour):
   circularity = area/perimeter**2
   return circularity
 
+def calculateRoundness(contour):
+  area = cv.contourArea(contour)
+  perimeter = cv.arcLength(contour, True)
+  roundness = 4*math.pi*area/(perimeter**2)
+  return roundness
+
 def detectBrain(path):
   """
   Detect brain boundries by detecting all contours of image and selecting the largest contour to be the brain.
@@ -127,6 +134,7 @@ def detectBrain(path):
   @params path
   """
   circularityValues = []
+  roundnessValues = []
   for count, fileName in enumerate(glob.glob(path)):
     actualImage = cv.imread('../Data/CT_sharpened/{0}.jpg'.format(count+1), cv.IMREAD_COLOR)
     # actualImage = imutils.resize(actualImage, width=200)
@@ -138,6 +146,8 @@ def detectBrain(path):
       largestContour = max(contours, key=cv.contourArea)
       circularity = calculateCircularity(largestContour)
       circularityValues.append(circularity)
+      roundness = calculateRoundness(largestContour)
+      roundnessValues.append(roundness)
       (x,y),radius = cv.minEnclosingCircle(largestContour)
       center = (int(x),int(y))
       radius = int(radius)
@@ -147,7 +157,7 @@ def detectBrain(path):
       imageCircled = cv.circle(image,center,radius,(150,70,50),3)
       # stackedImages = np.hstack((image, actualImage))
       # cv.imwrite('../Data/CT_detected/{0}.jpg'.format(count+1), imageCircled)
-  return circularityValues
+  return circularityValues, roundnessValues
 
 
 def preprocessingScript():
@@ -160,7 +170,7 @@ def preprocessingScript():
   smoothedDataPath = '../Data/CT_smoothed/*.jpg'
   rawDatasetPath = '../Data/CT_raw/*.jpg'
   convertDatasetToGray(datasetPath)
-  the following two methods can be used for increasing contrast (we need to choose which one is better)
+  # the following two methods can be used for increasing contrast (we need to choose which one is better)
   histogramEqualization(grayDatasetPath)
   Clahe(datasetPath)
   smoothDataset(enhancedDatasetPath)
@@ -168,7 +178,12 @@ def preprocessingScript():
   detectBrain(grayDatasetPath)
 
 def getCircularityValues():
-  circularityValues = detectBrain('../Data/CT_gray/*.jpg')
+  [circularityValues, roundness] = detectBrain('../Data/CT_gray/*.jpg')
   return circularityValues
 
-getCircularityValues()
+def getRoundnessValues():
+  [circularity, roundnessValues] = detectBrain('../Data/CT_gray/*.jpg')
+  print (roundnessValues)
+  return roundnessValues
+
+# getRoundnessValues()

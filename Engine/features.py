@@ -74,6 +74,17 @@ def modalGray(images, maxGray, minGray):
     modalValues.append(modeValue[0][0])
   return modalValues
 
+def aspectRatio(path):
+  aspectRatios = []
+  for count, fileName in enumerate(glob.glob(path)):
+    image = cv.imread(fileName, cv.IMREAD_COLOR)
+    imageDimentions = image.shape
+    imageHeight = imageDimentions[0]
+    imageWidth = imageDimentions[1]  
+    imageAspectRatio = imageWidth/imageHeight
+    aspectRatios.append(imageAspectRatio)
+  return aspectRatios
+
 def featureExtractionScript():
   maxGray = 150 
   minGray = 210 
@@ -82,5 +93,8 @@ def featureExtractionScript():
   stdGrayValues = stdGray(images, maxGray, minGray)
   modalGrayValues = modalGray(images, maxGray, minGray)
   circularityValues = getCircularityValues()
+  roundnessValues = getRoundnessValues()
+  datasetPath = '../Data/CT/*.jpg'
+  aspectRatioValues = aspectRatio(datasetPath)
 
 featureExtractionScript()
