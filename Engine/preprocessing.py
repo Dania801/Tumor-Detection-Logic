@@ -3,6 +3,7 @@ import cv2 as cv
 import glob
 from matplotlib import pyplot as plt
 import imutils
+import math
 
 
 def readImage(path):
@@ -104,16 +105,37 @@ def cropImage(image, contour, index):
   croppedImage = image[yRect: yRect+hRect,
                xRect: xRect+wRect]
   cv.imwrite('../Data/CT_cropped/{0}.jpg'.format(index+1), croppedImage)
-  cv.imshow('image {0}'.format(index+1),croppedImage)
-  cv.waitKey(0)
-  cv.destroyAllWindows()
+  # cv.imshow('image {0}'.format(index+1),croppedImage)
+  # cv.waitKey(0)
+  # cv.destroyAllWindows()
   return croppedImage 
+
+def calculateCircularity(contour):
+  """
+  Takes a contour (brain shaped) and find its circularity value
+  @params contour
+  @rtype {double}: a value between 0 and 1
+  """
+  area = cv.contourArea(contour)
+  perimeter = cv.arcLength(contour, True)
+  circularity = area/perimeter**2
+  return circularity
+
+def calculateRoundness(contour):
+  area = cv.contourArea(contour)
+  perimeter = cv.arcLength(contour, True)
+  roundness = 4*math.pi*area/(perimeter**2)
+  return roundness
 
 def detectBrain(path):
   """
   Detect brain boundries by detecting all contours of image and selecting the largest contour to be the brain.
+  This function also find stack circularity values of each detected brain.
   @params path
   """
+  circularityValues = []
+  roundnessValues = []
+  area = []
   for count, fileName in enumerate(glob.glob(path)):
     actualImage = cv.imread('../Data/CT_sharpened/{0}.jpg'.format(count+1), cv.IMREAD_COLOR)
     # actualImage = imutils.resize(actualImage, width=200)
@@ -123,19 +145,21 @@ def detectBrain(path):
     contours, hierarchy = cv.findContours(imageBW, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     if len(contours) != 0:
       largestContour = max(contours, key=cv.contourArea)
+      circularity = calculateCircularity(largestContour)
+      area = getArea()
+      circularityValues.append(circularity)
+      roundness = calculateRoundness(largestContour)
+      roundnessValues.append(roundness)
       (x,y),radius = cv.minEnclosingCircle(largestContour)
       center = (int(x),int(y))
       radius = int(radius)
       croppedImage = cropImage(image, largestContour, count)
       croppedImageSmoothed = cv.GaussianBlur(croppedImage, (5,5), cv.BORDER_DEFAULT)
-      cv.imshow('image {0}'.format(count+1),croppedImage)
-      cv.imwrite('../Data/CT_cropped/{0}.jpg'.format(count+1), croppedImageSmoothed)
+      # cv.imwrite('../Data/CT_cropped/{0}.jpg'.format(count+1), croppedImageSmoothed)
       imageCircled = cv.circle(image,center,radius,(150,70,50),3)
-      stackedImages = np.hstack((image, actualImage))
-      cv.imwrite('../Data/CT_detected/{0}.jpg'.format(count+1), imageCircled)
-      cv.imshow('image {0}'.format(count+1),imageCircled)
-      cv.waitKey(0)
-      cv.destroyAllWindows()
+      # stackedImages = np.hstack((image, actualImage))
+      # cv.imwrite('../Data/CT_detected/{0}.jpg'.format(count+1), imageCircled)
+  return circularityValues, roundnessValues, area
 
 
 def preprocessingScript():
@@ -154,4 +178,24 @@ def preprocessingScript():
   smoothDataset(enhancedDatasetPath)
   erodeAndDilate(smoothedDataPath)
   detectBrain(grayDatasetPath)
-preprocessingScript()
+
+def getCircularityValues():
+  [circularityValues, roundness, area] = detectBrain('../Data/CT_gray/*.jpg')
+  return circularityValues
+
+def getRoundnessValues():
+  [circularity, roundnessValues, area] = detectBrain('../Data/CT_gray/*.jpg')
+  # print
+  return roundnessValues
+
+
+
+def getArea(contour):
+  return cv.contourArea(contour)
+
+def getAreaValues():
+  [circularity, roundnessValues ,areaValues] = detectBrain('../Data/CT_gray/*.jpg')
+  return areaValues
+
+
+# getRoundnessValues()
