@@ -148,11 +148,10 @@ def preprocessingScript():
   smoothedDataPath = '../Data/CT_smoothed/*.jpg'
   rawDatasetPath = '../Data/CT_raw/*.jpg'
   convertDatasetToGray(datasetPath)
-  the following two methods can be used for increasing contrast (we need to choose which one is better)
+  # the following two methods can be used for increasing contrast (we need to choose which one is better)
   histogramEqualization(grayDatasetPath)
   Clahe(datasetPath)
   smoothDataset(enhancedDatasetPath)
   erodeAndDilate(smoothedDataPath)
   detectBrain(grayDatasetPath)
-
 preprocessingScript()

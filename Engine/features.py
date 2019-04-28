@@ -12,8 +12,10 @@ def readPreprocessedDataset(path):
   @rtype {list}
   """
   images = []
+  print(enumerate(glob.glob(path)))
   for count, fileName in enumerate(glob.glob(path)):
     image = cv.imread(fileName, cv.IMREAD_GRAYSCALE)
+    print(image)
     images.append(image)
   return images
 
@@ -76,9 +78,9 @@ def modalGray(images, maxGray, minGray):
 def featureExtractionScript():
   maxGray = 150 
   minGray = 210 
-  images = readPreprocessedDataset('../Data/CT_cropped/*.jpg')
-  meanGrayValues = meanGray(images, maxGray, minGray)
-  stdGrayValues = stdGray(images, maxGray, minGray)
-  modalGrayValues = modalGray(images, maxGray, minGray)
-
+  images = readPreprocessedDataset('/Users/omar/Tumor-Detection-Logic/Data/CT_cropped/*.jpg')
+  # print(images)
+  # meanGrayValues = meanGray(images, maxGray, minGray)
+  # stdGrayValues = stdGray(images, maxGray, minGray)
+  # modalGrayValues = modalGray(images, maxGray, minGray)
 featureExtractionScript()
