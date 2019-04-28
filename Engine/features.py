@@ -90,7 +90,7 @@ def aspectRatio(path):
 
 
 def integratedDensity(meanGrayValues, areaValues):
-  return [a * b for a, b in zip(meanGrayValue, areaValues)]
+  return [a * b for a, b in zip(meanGrayValues, areaValues)]
 
 
 def featureExtractionScript():
