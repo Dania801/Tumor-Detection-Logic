@@ -146,7 +146,7 @@ def detectBrain(path):
     if len(contours) != 0:
       largestContour = max(contours, key=cv.contourArea)
       circularity = calculateCircularity(largestContour)
-      area = getArea()
+      area = getArea(largestContour)
       circularityValues.append(circularity)
       roundness = calculateRoundness(largestContour)
       roundnessValues.append(roundness)
