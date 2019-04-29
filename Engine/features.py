@@ -93,6 +93,12 @@ def integratedDensity(meanGrayValues, areaValues):
   return [a * b for a, b in zip(meanGrayValues, areaValues)]
 
 
+
+def solidity(areaValues , convexHullValues):
+  return [a / b for a, b in zip(areaValues, convexHullValues)]
+
+
+
 def featureExtractionScript():
   maxGray = 150 
   minGray = 210 
@@ -109,6 +115,11 @@ def featureExtractionScript():
   circularityValues = getCircularityValues()
   roundnessValues = getRoundnessValues()
   areaValues = getAreaValues()
+  convexHullValues = getConvexHullValues()
+
+  solidityValiues = solidity(areaValues ,convexHullValues)
+
+
   print(integratedDensity(meanGrayValues, areaValues))
   # print(areaValues)
   datasetPath = '../Data/CT/*.jpg'
