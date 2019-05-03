@@ -122,10 +122,22 @@ def calculateCircularity(contour):
   return circularity
 
 def calculateRoundness(contour):
+  """
+  Takes a contour (brain shaped) and find its roundness value
+  @params contour
+  @rtype {double}: a value between 0 and 1
+  """
   area = cv.contourArea(contour)
   perimeter = cv.arcLength(contour, True)
   roundness = 4*math.pi*area/(perimeter**2)
   return roundness
+
+def calculateSolidity(contour):
+  area = cv.contourArea(contour)
+  hull = cv.convexHull(contour)
+  hullArea = cv.contourArea(hull)
+  solidity = float(area)/hullArea
+  return solidity
 
 def detectBrain(path):
   """
@@ -150,6 +162,8 @@ def detectBrain(path):
       circularityValues.append(circularity)
       roundness = calculateRoundness(largestContour)
       roundnessValues.append(roundness)
+      solidity = calculateSolidity(largestContour)
+      solidityValues.append(solidity)
       (x,y),radius = cv.minEnclosingCircle(largestContour)
       center = (int(x),int(y))
       radius = int(radius)
@@ -188,14 +202,11 @@ def getRoundnessValues():
   # print
   return roundnessValues
 
-
-
 def getArea(contour):
   return cv.contourArea(contour)
 
 def getAreaValues():
   [circularity, roundnessValues ,areaValues] = detectBrain('../Data/CT_gray/*.jpg')
   return areaValues
-
 
 # getRoundnessValues()

@@ -78,6 +78,11 @@ def modalGray(images, maxGray, minGray):
   return modalValues
 
 def aspectRatio(path):
+  """
+  Find aspect ratio of the dataset.
+  @params path
+  @rtype {list}: aspect ratio values for each image
+  """
   aspectRatios = []
   for count, fileName in enumerate(glob.glob(path)):
     image = cv.imread(fileName, cv.IMREAD_COLOR)
@@ -106,6 +111,16 @@ def integratedDensity(images, areaValues, minGray, maxGray):
   return integratedDensityValues
 
 
+def areaFraction(images):
+  percentages = []
+  for image in images:
+    numpyImage = np.array(image)
+    flattenImage = numpyImage.flatten()
+    nonZeroPixels = [pixel for pixel in flattenImage if pixel != 0]
+    percentage = len(nonZeroPixels)/len(flattenImage)
+    percentages.append(percentage)
+  return percentages
+
 
 def featureExtractionScript():
   maxGray = 150 
@@ -128,5 +143,4 @@ def featureExtractionScript():
   datasetPath = '../Data/CT/*.jpg'
   aspectRatioValues = aspectRatio(datasetPath)
 
-# >>>>>>> 4142001690f3983927ae7cc6f1cbca1ad3473866
 featureExtractionScript()
