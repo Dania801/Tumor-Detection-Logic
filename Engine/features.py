@@ -16,8 +16,6 @@ def readPreprocessedDataset(path):
   print(enumerate(glob.glob(path)))
   for count, fileName in enumerate(glob.glob(path)):
     image = cv.imread(fileName, cv.IMREAD_GRAYSCALE)
-
-    print(image)
     images.append(image)
   return images
 
@@ -31,13 +29,13 @@ def meanGray(images, maxGray, minGray):
   grayCount = 0
   imagePixels = 0
   meanGrayValues = []
-  for count, image in enumerate(images):
-    for line in image: 
-      imagePixels += len(line)
-      for pixel in line: 
-        if pixel <= minGray and pixel >= maxGray:
+  for image in images: 
+    numpyImage = np.array(image)
+    flattenImage = numpyImage.flatten()
+    for pixel in flattenImage: 
+      if pixel <= minGray and pixel >= maxGray:
           grayCount += 1
-    meanGrayValues.append(grayCount/imagePixels)
+    meanGrayValues.append(grayCount/len(flattenImage))
     grayCount = 0
     imagePixels = 0
   return meanGrayValues
@@ -58,7 +56,6 @@ def stdGray(images, maxGray, minGray):
     imageDeviation = np.std(grayValues)
     stdValues.append(imageDeviation)
   return stdValues
-  
 
 def modalGray(images, maxGray, minGray):
   """
@@ -93,15 +90,11 @@ def aspectRatio(path):
     aspectRatios.append(imageAspectRatio)
   return aspectRatios
 
-
 def integratedDensity(meanGrayValues, areaValues):
   return [a * b for a, b in zip(meanGrayValues, areaValues)]
 
-
-
 def solidity(areaValues , convexHullValues):
   return [a / b for a, b in zip(areaValues, convexHullValues)]
-
 
 def areaFraction(images):
   percentages = []
@@ -113,31 +106,32 @@ def areaFraction(images):
     percentages.append(percentage)
   return percentages
 
-
 def featureExtractionScript():
   maxGray = 150 
   minGray = 210 
-  # images = readPreprocessedDataset('/Users/omar/Tumor-Detection-Logic/Data/CT_cropped/*.jpg')
-  # print(images)
-  # meanGrayValues = meanGray(images, maxGray, minGray)
-  # stdGrayValues = stdGray(images, maxGray, minGray)
-  # modalGrayValues = modalGray(images, maxGray, minGray)
-  images = readPreprocessedDataset('../Data/CT_cropped/*.jpg')
-  # cv.contourArea()
+  images = readPreprocessedDataset('/Users/omar/Tumor-Detection-Logic/Data/CT_cropped/*.jpg')
   meanGrayValues = meanGray(images, maxGray, minGray)
+  print ('Done calculating mean gray values.')
   stdGrayValues = stdGray(images, maxGray, minGray)
+  print ('Done calculating standard gray values.')
   modalGrayValues = modalGray(images, maxGray, minGray)
+  print ('Done calculating modal gray values.')
+  images = readPreprocessedDataset('../Data/CT_cropped/*.jpg')
   circularityValues = getCircularityValues()
+  print ('Done calculating circularity values.')
   roundnessValues = getRoundnessValues()
+  print ('Done calculating roundness values.')
   areaValues = getAreaValues()
-  convexHullValues = getConvexHullValues()
-
-  solidityValiues = solidity(areaValues ,convexHullValues)
-
-
-  print(integratedDensity(meanGrayValues, areaValues))
-  # print(areaValues)
+  # convexHullValues = getConvexHullValues()
+  # solidityValues = solidity(areaValues ,convexHullValues)
+  solidityValues2 = getSolidityValues()
+  print ('Done calculating solidity values.')
+  densityValues = integratedDensity(meanGrayValues, areaValues)
+  print ('Done calculating density values.')
   datasetPath = '../Data/CT/*.jpg'
   aspectRatioValues = aspectRatio(datasetPath)
+  print ('Done calculating aspect ratio values.')
+  areaFractionValues = areaFraction(images)
+  print ('Done calculating area fraction values.')
 
 featureExtractionScript()

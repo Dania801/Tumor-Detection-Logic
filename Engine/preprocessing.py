@@ -149,6 +149,8 @@ def detectBrain(path):
   roundnessValues = []
   area = []
   convexHullValues=[]
+  solidity=[]
+  solidityValues=[]
   for count, fileName in enumerate(glob.glob(path)):
     actualImage = cv.imread('../Data/CT_sharpened/{0}.jpg'.format(count+1), cv.IMREAD_COLOR)
     # actualImage = imutils.resize(actualImage, width=200)
@@ -159,8 +161,8 @@ def detectBrain(path):
     if len(contours) != 0:
       largestContour = max(contours, key=cv.contourArea)
       circularity = calculateCircularity(largestContour)
-      area = getArea(largestContour)
-      convexHullValues = getConvexHull(largestContour)
+      area.append(getArea(largestContour))
+      convexHullValues.append(getConvexHull(largestContour))
       circularityValues.append(circularity)
       roundness = calculateRoundness(largestContour)
       roundnessValues.append(roundness)
@@ -175,7 +177,7 @@ def detectBrain(path):
       imageCircled = cv.circle(image,center,radius,(150,70,50),3)
       # stackedImages = np.hstack((image, actualImage))
       # cv.imwrite('../Data/CT_detected/{0}.jpg'.format(count+1), imageCircled)
-  return circularityValues, roundnessValues, area, convexHullValues
+  return circularityValues, roundnessValues, area, solidityValues
 
 
 def preprocessingScript():
@@ -201,20 +203,22 @@ def getCircularityValues():
 
 def getRoundnessValues():
   [circularity, roundnessValues, area, convexHullValues] = detectBrain('../Data/CT_gray/*.jpg')
-  # print
   return roundnessValues
 
 def getArea(contour):
   return cv.contourArea(contour)
 
 def getAreaValues():
-  [circularity, roundnessValues ,areaValues, convexHullValues] = detectBrain('../Data/CT_gray/*.jpg')
+  [circularity, roundnessValues, areaValues, solidityValues] = detectBrain('../Data/CT_gray/*.jpg')
   return areaValues
 
+# def getConvexHullValues():
+#   [circularity, roundnessValues ,areaValues, convexHullValues] = detectBrain('../Data/CT_gray/*.jpg')
+#   return convexHullValues
 
-def getConvexHullValues():
-  [circularity, roundnessValues ,areaValues, convexHullValues] = detectBrain('../Data/CT_gray/*.jpg')
-  return convexHullValues
+def getSolidityValues():
+  [circularity, roundnessValues, areadValues, solidityValues] = detectBrain('../Data/CT_gray/*.jpg')
+  return solidityValues
 
 def getConvexHull(contour):
   return cv.convexHull(contour ,False)
