@@ -94,21 +94,13 @@ def aspectRatio(path):
   return aspectRatios
 
 
-def integratedDensity(images, areaValues, minGray, maxGray):
-  grayCount = 0
-  imagePixels = 0
-  integratedDensityValues = []
-  for count, image in enumerate(images):
-    for line in image:
-      imagePixels += len(line)
-      for pixel in line:
-        if pixel <= minGray and pixel >= maxGray:
-          grayCount += 1
-    meanGrayValue = grayCount/imagePixels
-    integratedDensityValues.append(meanGrayValue * areaValues[0])
-    grayCount = 0
-    imagePixels = 0
-  return integratedDensityValues
+def integratedDensity(meanGrayValues, areaValues):
+  return [a * b for a, b in zip(meanGrayValues, areaValues)]
+
+
+
+def solidity(areaValues , convexHullValues):
+  return [a / b for a, b in zip(areaValues, convexHullValues)]
 
 
 def areaFraction(images):
@@ -138,7 +130,12 @@ def featureExtractionScript():
   circularityValues = getCircularityValues()
   roundnessValues = getRoundnessValues()
   areaValues = getAreaValues()
-  print(integratedDensity(images, areaValues ,maxGray , minGray))
+  convexHullValues = getConvexHullValues()
+
+  solidityValiues = solidity(areaValues ,convexHullValues)
+
+
+  print(integratedDensity(meanGrayValues, areaValues))
   # print(areaValues)
   datasetPath = '../Data/CT/*.jpg'
   aspectRatioValues = aspectRatio(datasetPath)
