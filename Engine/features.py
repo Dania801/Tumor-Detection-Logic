@@ -97,6 +97,11 @@ def solidity(areaValues , convexHullValues):
   return [a / b for a, b in zip(areaValues, convexHullValues)]
 
 def areaFraction(images):
+  """
+  Find area fraction of the dataset.
+  @params image
+  @rtype {list}: area fraction values for each image
+  """
   percentages = []
   for image in images:
     numpyImage = np.array(image)
@@ -109,7 +114,7 @@ def areaFraction(images):
 def featureExtractionScript():
   maxGray = 150 
   minGray = 210 
-  images = readPreprocessedDataset('/Users/omar/Tumor-Detection-Logic/Data/CT_cropped/*.jpg')
+  images = readPreprocessedDataset('../Data/CT_cropped/*.jpg')
   meanGrayValues = meanGray(images, maxGray, minGray)
   print ('Done calculating mean gray values.')
   stdGrayValues = stdGray(images, maxGray, minGray)
@@ -133,5 +138,5 @@ def featureExtractionScript():
   print ('Done calculating aspect ratio values.')
   areaFractionValues = areaFraction(images)
   print ('Done calculating area fraction values.')
-
-featureExtractionScript()
+  return meanGrayValues, stdGrayValues, modalGrayValues, circularityValues, roundnessValues, solidityValues2, densityValues, aspectRatioValues, areaFractionValues
+# featureExtractionScript()
