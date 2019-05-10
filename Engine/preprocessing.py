@@ -223,4 +223,10 @@ def getSolidityValues():
 def getConvexHull(contour):
   return cv.convexHull(contour ,False)
 
+def getDiagnosis():
+  diagnosisList = [1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 
+                   1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 
+                   0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0]
+  return diagnosisList;
+
 # getRoundnessValues()

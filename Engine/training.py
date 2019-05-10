@@ -1,8 +1,9 @@
 import numpy as np
 import cv2 as cv
 import glob
-from features import *
 import pickle
+from features import *
+from preprocessing import *
 
 
 def prepareTrainingData():
@@ -13,9 +14,11 @@ def prepareTrainingData():
   [meanGrayValues, stdGrayValues, modalGrayValues, 
    circularityValues, roundnessValues, solidityValues, 
    densityValues, aspectRatioValues, areaFractionValues] = featureExtractionScript()
+  diagnosisList = getDiagnosis()
   imagesInfo = []
   for i, info in enumerate(meanGrayValues):
     imagesInfo.append({
+      'diagnosis': diagnosisList[i],
       'meanGray': meanGrayValues[i],
       'stdGray': stdGrayValues[i],
       'modalGray': modalGrayValues[i],
@@ -48,4 +51,6 @@ def loadTrainingData():
   print (data)
   return data
 
-loadTrainingData()
+# loadTrainingData()
+# prepareTrainingData()
+saveTrainingData()
