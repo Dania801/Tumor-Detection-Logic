@@ -5,6 +5,9 @@ import pickle
 from keras.models import Sequential
 from keras.layers import Dense
 import tensorflow
+from sklearn import tree
+from sklearn.metrics import accuracy_score
+import graphviz
 from features import *
 from preprocessing import *
 
@@ -81,7 +84,37 @@ def neuralNetwork():
   scores = model.evaluate(inputList, outputList)
   print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
 
+def decisionTree():
+  """
+  Decision tree model. Firstly data got split into training and testing set, then training set is fit into the model
+  and in order to calculate the accuracy, we predict the result of training set and provide the result to evaluator.
+  The resulted accuracy of decision tree = 32.52%
+  """
+  dataset = loadTrainingData()
+  inputList = []
+  outputList = []
+  for row in dataset:
+    values = [value for value in row.values()]
+    outputList.append(values[0])
+    del values[0]
+    inputList.append(values)
+  inputList = np.array(inputList)
+  xTrainingList = inputList[0:int(len(inputList)/2):1]
+  xTestingList = inputList[int(len(inputList)/2):len(inputList):1]
+  outputList = np.array(outputList)
+  yTrainingList = outputList[0:int(len(outputList)/2):1]
+  yTestingList = outputList[int(len(outputList)/2):len(outputList):1]
+  clf = tree.DecisionTreeClassifier()
+  clf = clf.fit(xTrainingList, yTrainingList)
+  dot_data = tree.export_graphviz(clf, out_file=None) 
+  graph = graphviz.Source(dot_data) 
+  graph.render("iris")
+  predictedList = clf.predict(xTestingList)
+  accuracy = accuracy_score(yTestingList, predictedList)
+  print ('acc: {0}'.format(accuracy))
+
 # loadTrainingData()
 # prepareTrainingData()
 # saveTrainingData()
-neuralNetwork()
+# neuralNetwork()
+decisionTree()
