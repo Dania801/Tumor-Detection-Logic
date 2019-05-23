@@ -10,6 +10,10 @@ from sklearn.metrics import accuracy_score
 import graphviz
 from features import *
 from preprocessing import *
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn import metrics
+import pandas as pd
 
 np.random.seed(7)
 
@@ -43,7 +47,7 @@ def saveTrainingData():
   Stores features in a binary file.
   """
   imagesInfo = prepareTrainingData()
-  dataFile = '../Data/dataset_info.dat'
+  dataFile = '/Users/omar/dania/Tumor-Detection-Logic/Data/dataset_info.dat'
   openDataFile = open(dataFile, 'wb')
   pickle.dump(imagesInfo, openDataFile)
   openDataFile.close()
@@ -52,7 +56,7 @@ def loadTrainingData():
   """
   Retrieves dataset features from desk.
   """
-  dataFile = '../Data/dataset_info.dat'
+  dataFile = '/Users/omar/dania/Tumor-Detection-Logic/Data/dataset_info.dat'
   openedSumFile = open(dataFile, 'rb')
   data = pickle.load(openedSumFile)
   return data
@@ -117,4 +121,22 @@ def decisionTree():
 # prepareTrainingData()
 # saveTrainingData()
 # neuralNetwork()
-decisionTree()
+# decisionTree()
+
+def naivebayes():
+
+  data = loadTrainingData()
+  data = pd.DataFrame(data)
+  X = data[['areaFraction', 'aspectRatio', 'circularity', 'density','meanGray', 'modalGray', 'roundness', 'solidity', 'stdGray']]
+  # print(X.head())
+  y = data['diagnosis']
+  X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
+  model = GaussianNB()
+  model.fit(X_train, y_train)
+  GaussianNB(priors=None)
+  y_pred = model.predict(X_test)
+  print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
+  # print('OMAR', data)
+
+naivebayes()
+

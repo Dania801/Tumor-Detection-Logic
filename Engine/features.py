@@ -112,16 +112,17 @@ def areaFraction(images):
   return percentages
 
 def featureExtractionScript():
-  maxGray = 150 
+  maxGray = 150
   minGray = 210 
-  images = readPreprocessedDataset('../Data/CT_cropped/*.jpg')
+  images = readPreprocessedDataset('/Users/omar/dania/Tumor-Detection-Logic/Data/CT_cropped/*.jpg')
+
   meanGrayValues = meanGray(images, maxGray, minGray)
   print ('Done calculating mean gray values.')
   stdGrayValues = stdGray(images, maxGray, minGray)
   print ('Done calculating standard gray values.')
   modalGrayValues = modalGray(images, maxGray, minGray)
   print ('Done calculating modal gray values.')
-  images = readPreprocessedDataset('../Data/CT_cropped/*.jpg')
+  images = readPreprocessedDataset('/Users/omar/dania/Tumor-Detection-Logic/Data/CT_cropped/*.jpg')
   circularityValues = getCircularityValues()
   print ('Done calculating circularity values.')
   roundnessValues = getRoundnessValues()
@@ -139,4 +140,4 @@ def featureExtractionScript():
   areaFractionValues = areaFraction(images)
   print ('Done calculating area fraction values.')
   return meanGrayValues, stdGrayValues, modalGrayValues, circularityValues, roundnessValues, solidityValues2, densityValues, aspectRatioValues, areaFractionValues
-# featureExtractionScript()
+featureExtractionScript()
