@@ -7,6 +7,9 @@ from keras.layers import Dense
 import tensorflow
 from sklearn import tree
 from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import StandardScaler
+from keras.models import model_from_json
+
 import graphviz
 from features import *
 from preprocessing import *
@@ -47,7 +50,7 @@ def saveTrainingData():
   Stores features in a binary file.
   """
   imagesInfo = prepareTrainingData()
-  dataFile = '/Users/omar/dania/Tumor-Detection-Logic/Data/dataset_info.dat'
+  dataFile = '../Data/dataset_info.dat'
   openDataFile = open(dataFile, 'wb')
   pickle.dump(imagesInfo, openDataFile)
   openDataFile.close()
@@ -56,7 +59,7 @@ def loadTrainingData():
   """
   Retrieves dataset features from desk.
   """
-  dataFile = '/Users/omar/dania/Tumor-Detection-Logic/Data/dataset_info.dat'
+  dataFile = '../Data/dataset_info.dat'
   openedSumFile = open(dataFile, 'rb')
   data = pickle.load(openedSumFile)
   return data
@@ -83,10 +86,19 @@ def neuralNetwork():
     del values[0]
     inputList.append(values)
   inputList = np.array(inputList)
+  scaler = StandardScaler()
+  # inputList = scaler.fit_transform(inputList[7][:, np.newaxis])
+  # inputList = np.array([inputList.flatten()])
+  # print (inputList)
+  inputList = scaler.fit_transform(inputList)
   outputList = np.array(outputList)
-  model.fit(inputList, outputList, epochs=150, batch_size=10)
+  model.fit(inputList, outputList, epochs=150, batch_size=16, shuffle=False)
   scores = model.evaluate(inputList, outputList)
   print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
+  model_json = model.to_json()
+  with open("../Data/nn_architecture.json", "w") as json_file:
+      json_file.write(model_json)
+  model.save_weights("../Data/nn_weights.h5")
 
 def decisionTree():
   """
@@ -103,6 +115,8 @@ def decisionTree():
     del values[0]
     inputList.append(values)
   inputList = np.array(inputList)
+  scaler = StandardScaler()
+  inputList = scaler.fit_transform(inputList)
   xTrainingList = inputList[0:int(len(inputList)/2):1]
   xTestingList = inputList[int(len(inputList)/2):len(inputList):1]
   outputList = np.array(outputList)
@@ -117,26 +131,23 @@ def decisionTree():
   accuracy = accuracy_score(yTestingList, predictedList)
   print ('acc: {0}'.format(accuracy))
 
+def naivebayes():
+  data = loadTrainingData()
+  data = pd.DataFrame(data)
+  X = data[['areaFraction', 'aspectRatio', 'circularity', 'density','meanGray', 'modalGray', 'roundness', 'solidity', 'stdGray']]
+  y = data['diagnosis']
+  X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
+  model = GaussianNB()
+  print ('----> ', X_train)
+  model.fit(X_train, y_train)
+  GaussianNB(priors=None)
+  y_pred = model.predict(X_test)
+  print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
+  return model
+
 # loadTrainingData()
 # prepareTrainingData()
 # saveTrainingData()
 # neuralNetwork()
 # decisionTree()
-
-def naivebayes():
-
-  data = loadTrainingData()
-  data = pd.DataFrame(data)
-  X = data[['areaFraction', 'aspectRatio', 'circularity', 'density','meanGray', 'modalGray', 'roundness', 'solidity', 'stdGray']]
-  # print(X.head())
-  y = data['diagnosis']
-  X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
-  model = GaussianNB()
-  model.fit(X_train, y_train)
-  GaussianNB(priors=None)
-  y_pred = model.predict(X_test)
-  print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
-  # print('OMAR', data)
-
-naivebayes()
-
+# naivebayes()
