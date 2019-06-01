@@ -4,6 +4,8 @@ import glob
 from matplotlib import pyplot as plt
 import imutils
 import math
+import ntpath
+ntpath.basename("a/b/c")
 
 
 def readImage(path):
@@ -24,8 +26,10 @@ def convertDatasetToGray(path):
   @params path
   """
   for count, fileName in enumerate(glob.glob(path)):
+    head, tail = ntpath.split(fileName)
+    name = tail.replace('.jpg', '')
     image = readImage(fileName)
-    cv.imwrite('../Data/CT_gray/{0}.jpg'.format(count+1),image)
+    cv.imwrite('../Data/CT_gray/{0}.jpg'.format(name),image)
 
 def histogramEqualization(path):
   """
@@ -37,7 +41,9 @@ def histogramEqualization(path):
     imageEnhanced = cv.equalizeHist(image)
     stackedImages = np.hstack((image,imageEnhanced))
     cv.imshow('image {0}'.format(count+1), stackedImages)
-    cv.imwrite('../Data/CT_enhanced/{0}.jpg'.format(count+1), imageEnhanced)
+    head, tail = ntpath.split(fileName)
+    name = tail.replace('.jpg', '')
+    cv.imwrite('../Data/CT_enhanced/{0}.jpg'.format(name), imageEnhanced)
     cv.waitKey(0)
     cv.destroyAllWindows()
 
@@ -69,8 +75,10 @@ def smoothDataset(path):
                                  [-1, 9,-1],
                                  [-1,-1,-1]])
     sharpened = cv.filter2D(resizedImage, -1, kernelSharpening)
-    cv.imwrite('../Data/CT_smoothed/{0}.jpg'.format(count+1),blurredImage)
-    cv.imwrite('../Data/CT_sharpened/{0}.jpg'.format(count+1), sharpened)
+    head, tail = ntpath.split(fileName)
+    name = tail.replace('.jpg', '')
+    cv.imwrite('../Data/CT_smoothed/{0}.jpg'.format(name),blurredImage)
+    cv.imwrite('../Data/CT_sharpened/{0}.jpg'.format(name), sharpened)
     cv.imshow('image {0}'.format(count+1), blurredImage)
     cv.waitKey(0)
     cv.destroyAllWindows()
@@ -88,7 +96,9 @@ def erodeAndDilate(path):
     imageErosion = cv.erode(imageBW, kernel, iterations=1)
     imageDilation = cv.dilate(imageErosion, kernel, iterations=1)
     stackedImages = np.hstack((imageDilation, image))
-    cv.imwrite('../Data/CT_raw/{0}.jpg'.format(count+1), imageDilation)
+    head, tail = ntpath.split(fileName)
+    name = tail.replace('.jpg', '')
+    cv.imwrite('../Data/CT_raw/{0}.jpg'.format(name), imageDilation)
     cv.imshow('image {0}'.format(count+1), stackedImages)
     cv.waitKey(0)
     cv.destroyAllWindows()
@@ -173,10 +183,12 @@ def detectBrain(path):
       radius = int(radius)
       croppedImage = cropImage(image, largestContour, count)
       croppedImageSmoothed = cv.GaussianBlur(croppedImage, (5,5), cv.BORDER_DEFAULT)
-      # cv.imwrite('../Data/CT_cropped/{0}.jpg'.format(count+1), croppedImageSmoothed)
+      head, tail = ntpath.split(fileName)
+      name = tail.replace('.jpg', '')
+      # cv.imwrite('../Data/CT_cropped/{0}.jpg'.format(name), croppedImageSmoothed)
       imageCircled = cv.circle(image,center,radius,(150,70,50),3)
       # stackedImages = np.hstack((image, actualImage))
-      # cv.imwrite('../Data/CT_detected/{0}.jpg'.format(count+1), imageCircled)
+      # cv.imwrite('../Data/CT_detected/{0}.jpg'.format(name), imageCircled)
   return circularityValues, roundnessValues, area, solidityValues
 
 
@@ -230,3 +242,4 @@ def getDiagnosis():
   return diagnosisList;
 
 # getRoundnessValues()
+preprocessingScript()
