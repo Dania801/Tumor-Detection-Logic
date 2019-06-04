@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 import imutils
 import math
 import ntpath
+from diagnosis import *
 ntpath.basename("a/b/c")
 
 
@@ -15,10 +16,65 @@ def readImage(path):
   """
   image = cv.imread(path, cv.IMREAD_COLOR)
   imageGray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-  cv.imshow('image',imageGray)
-  cv.waitKey(0)
-  cv.destroyAllWindows()
+  # cv.imshow('image',imageGray)
+  # cv.waitKey(0)
+  # cv.destroyAllWindows()
   return imageGray
+
+def rotateDatasetLeft(path):
+  for count, fileName in enumerate(glob.glob(path)):
+    head, tail = ntpath.split(fileName)
+    name = tail.replace('.jpg', '')
+    image = readImage(fileName)
+    rotated = imutils.rotate_bound(image, 330)
+    fileName = "../Data/CT_rotatedLeft/rotatedLeft_%d.jpg"%int(name)
+    cv.imwrite(fileName, rotated)
+
+def rotateDatasetRight(path):
+  for count, fileName in enumerate(glob.glob(path)):
+    head, tail = ntpath.split(fileName)
+    name = tail.replace('.jpg', '')
+    image = readImage(fileName)
+    rotated = imutils.rotate_bound(image, 30)
+    fileName = "../Data/CT_rotatedRight/rotatedRight_%d.jpg"%int(name)
+    cv.imwrite(fileName, rotated)
+
+def flipDatasetVertical(path):
+  for count, fileName in enumerate(glob.glob(path)):
+    head, tail = ntpath.split(fileName)
+    name = tail.replace('.jpg', '')
+    image = readImage(fileName)
+    rotated = cv.flip(image, 1)
+    fileName = "../Data/CT_flippedVertical/flippedVertical_%d.jpg"%int(name)
+    cv.imwrite(fileName, rotated)
+
+def rotateFlippedDatasetRight(path):
+  for count, fileName in enumerate(glob.glob(path)):
+    head, tail = ntpath.split(fileName)
+    name = tail.replace('.jpg', '')
+    image = readImage(fileName)
+    rotated = imutils.rotate_bound(image, 30)
+    fileName = "../Data/CT_rotatedFlippedRight/flipped_{0}.jpg".format(name)
+    cv.imwrite(fileName, rotated)
+
+def rotateFlippedDatasetLeft(path):
+  for count, fileName in enumerate(glob.glob(path)):
+    head, tail = ntpath.split(fileName)
+    name = tail.replace('.jpg', '')
+    image = readImage(fileName)
+    rotated = imutils.rotate_bound(image, 330)
+    fileName = "../Data/CT_rotatedFlippedLeft/flipped_{0}.jpg".format(name)
+    cv.imwrite(fileName, rotated)
+
+def gatherDataset(paths):
+  index = 0
+  for path in paths:
+    for count, fileName in enumerate(glob.glob(path)):
+      head, tail = ntpath.split(fileName)
+      name = tail.replace('.jpg', '')
+      image = readImage(fileName)
+      cv.imwrite("../Data/Dataset/{0}.jpg".format(index), image)
+      index += 1
 
 def convertDatasetToGray(path):
   """
@@ -40,12 +96,12 @@ def histogramEqualization(path):
     image = cv.imread(fileName, cv.IMREAD_GRAYSCALE)
     imageEnhanced = cv.equalizeHist(image)
     stackedImages = np.hstack((image,imageEnhanced))
-    cv.imshow('image {0}'.format(count+1), stackedImages)
+    # cv.imshow('image {0}'.format(count+1), stackedImages)
     head, tail = ntpath.split(fileName)
     name = tail.replace('.jpg', '')
     cv.imwrite('../Data/CT_enhanced/{0}.jpg'.format(name), imageEnhanced)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
+    # cv.waitKey(0)
+    # cv.destroyAllWindows()
 
 def Clahe(path):
   """
@@ -57,9 +113,9 @@ def Clahe(path):
     clahe = cv.createCLAHE(clipLimit=10.0, tileGridSize=(8,8))
     appliedClahe = clahe.apply(image)
     stackedImages = np.hstack((image,appliedClahe))
-    cv.imshow('image {0}'.format(count+1), stackedImages)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
+    # cv.imshow('image {0}'.format(count+1), stackedImages)
+    # cv.waitKey(0)
+    # cv.destroyAllWindows()
 
 def smoothDataset(path):
   """
@@ -79,9 +135,9 @@ def smoothDataset(path):
     name = tail.replace('.jpg', '')
     cv.imwrite('../Data/CT_smoothed/{0}.jpg'.format(name),blurredImage)
     cv.imwrite('../Data/CT_sharpened/{0}.jpg'.format(name), sharpened)
-    cv.imshow('image {0}'.format(count+1), blurredImage)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
+    # cv.imshow('image {0}'.format(count+1), blurredImage)
+    # cv.waitKey(0)
+    # cv.destroyAllWindows()
 
 def erodeAndDilate(path):
   """
@@ -99,9 +155,9 @@ def erodeAndDilate(path):
     head, tail = ntpath.split(fileName)
     name = tail.replace('.jpg', '')
     cv.imwrite('../Data/CT_raw/{0}.jpg'.format(name), imageDilation)
-    cv.imshow('image {0}'.format(count+1), stackedImages)
-    cv.waitKey(0)
-    cv.destroyAllWindows()
+    # cv.imshow('image {0}'.format(count+1), stackedImages)
+    # cv.waitKey(0)
+    # cv.destroyAllWindows()
 
 def cropImage(image, contour, index):
   """
@@ -114,7 +170,7 @@ def cropImage(image, contour, index):
   xRect, yRect, wRect, hRect = cv.boundingRect(contour)
   croppedImage = image[yRect: yRect+hRect,
                xRect: xRect+wRect]
-  cv.imwrite('../Data/CT_cropped/{0}.jpg'.format(index+1), croppedImage)
+  cv.imwrite('../Data/CT_cropped/{0}.jpg'.format(index), croppedImage)
   # cv.imshow('image {0}'.format(index+1),croppedImage)
   # cv.waitKey(0)
   # cv.destroyAllWindows()
@@ -162,7 +218,9 @@ def detectBrain(path):
   solidity=[]
   solidityValues=[]
   for count, fileName in enumerate(glob.glob(path)):
-    actualImage = cv.imread('../Data/CT_sharpened/{0}.jpg'.format(count+1), cv.IMREAD_COLOR)
+    head, tail = ntpath.split(fileName)
+    name = tail.replace('.jpg', '')
+    actualImage = cv.imread('../Data/CT_sharpened/{0}.jpg'.format(name), cv.IMREAD_COLOR)
     # actualImage = imutils.resize(actualImage, width=200)
     image = cv.imread(fileName, cv.IMREAD_COLOR);
     image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
@@ -181,14 +239,14 @@ def detectBrain(path):
       (x,y),radius = cv.minEnclosingCircle(largestContour)
       center = (int(x),int(y))
       radius = int(radius)
-      croppedImage = cropImage(image, largestContour, count)
+      croppedImage = cropImage(image, largestContour, name)
       croppedImageSmoothed = cv.GaussianBlur(croppedImage, (5,5), cv.BORDER_DEFAULT)
       head, tail = ntpath.split(fileName)
       name = tail.replace('.jpg', '')
       # cv.imwrite('../Data/CT_cropped/{0}.jpg'.format(name), croppedImageSmoothed)
       imageCircled = cv.circle(image,center,radius,(150,70,50),3)
       # stackedImages = np.hstack((image, actualImage))
-      # cv.imwrite('../Data/CT_detected/{0}.jpg'.format(name), imageCircled)
+      cv.imwrite('../Data/CT_detected/{0}.jpg'.format(name), imageCircled)
   return circularityValues, roundnessValues, area, solidityValues
 
 
@@ -196,7 +254,7 @@ def preprocessingScript():
   """
   Apply all of dataset preprocessing function and return the raw images. 
   """
-  datasetPath = '../Data/CT/*.jpg'
+  datasetPath = '../Data/Dataset/*.jpg'
   grayDatasetPath = '../Data/CT_gray/*.jpg'
   enhancedDatasetPath = '../Data/CT_enhanced/*.jpg'
   smoothedDataPath = '../Data/CT_smoothed/*.jpg'
@@ -236,10 +294,11 @@ def getConvexHull(contour):
   return cv.convexHull(contour ,False)
 
 def getDiagnosis():
-  diagnosisList = [1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 
-                   1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 
-                   0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0]
-  return diagnosisList;
+  return diagnosisList
 
 # getRoundnessValues()
-preprocessingScript()
+# preprocessingScript()
+# rotateFlippedDatasetLeft('../Data/CT_rotatedLeft/*.jpg')
+# gatherDataset(['../Data/CT/*.jpg', '../Data/CT_rotatedRight/*.jpg', '../Data/CT_rotatedLeft/*.jpg',
+#                '../Data/CT_flippedVertical/*.jpg', '../Data/CT_rotatedFlippedLeft/*.jpg', 
+#                '../Data/CT_rotatedFlippedRight/*.jpg'])

@@ -114,30 +114,39 @@ def areaFraction(images):
 def featureExtractionScript():
   maxGray = 150
   minGray = 210 
-  images = readPreprocessedDataset('/Users/omar/dania/Tumor-Detection-Logic/Data/CT_cropped/*.jpg')
+  images = readPreprocessedDataset('../Data/CT_cropped/*.jpg')
 
   meanGrayValues = meanGray(images, maxGray, minGray)
   print ('Done calculating mean gray values.')
+  print (len (meanGrayValues))
   stdGrayValues = stdGray(images, maxGray, minGray)
   print ('Done calculating standard gray values.')
+  print (len (stdGrayValues))
   modalGrayValues = modalGray(images, maxGray, minGray)
   print ('Done calculating modal gray values.')
-  images = readPreprocessedDataset('/Users/omar/dania/Tumor-Detection-Logic/Data/CT_cropped/*.jpg')
+  print (len (modalGrayValues))
   circularityValues = getCircularityValues()
   print ('Done calculating circularity values.')
+  print (len (circularityValues))
   roundnessValues = getRoundnessValues()
   print ('Done calculating roundness values.')
+  print (len (roundnessValues))
   areaValues = getAreaValues()
   # convexHullValues = getConvexHullValues()
   # solidityValues = solidity(areaValues ,convexHullValues)
   solidityValues2 = getSolidityValues()
   print ('Done calculating solidity values.')
+  print (len (solidityValues2))
   densityValues = integratedDensity(meanGrayValues, areaValues)
   print ('Done calculating density values.')
-  datasetPath = '../Data/CT/*.jpg'
+  print (len (densityValues))
+  datasetPath = '../Data/Dataset/*.jpg'
   aspectRatioValues = aspectRatio(datasetPath)
   print ('Done calculating aspect ratio values.')
+  print (len (aspectRatioValues))
   areaFractionValues = areaFraction(images)
   print ('Done calculating area fraction values.')
+  print (len (areaFractionValues))
   return meanGrayValues, stdGrayValues, modalGrayValues, circularityValues, roundnessValues, solidityValues2, densityValues, aspectRatioValues, areaFractionValues
-featureExtractionScript()
+
+# featureExtractionScript()

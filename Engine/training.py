@@ -67,7 +67,7 @@ def loadTrainingData():
 def neuralNetwork():
   """
   Neural network with 5 layers, the first layer has 12 neurons and expects 9 inputs
-  the rest of layers have 9 neurons. The resulted accuracy with rectifier activation function = 68.75%
+  the rest of layers have 9 neurons. The resulted accuracy with rectifier activation function = 70.59%
   while with sigmoid function = 58.30%
   """
   model = Sequential()
@@ -104,7 +104,7 @@ def decisionTree():
   """
   Decision tree model. Firstly data got split into training and testing set, then training set is fit into the model
   and in order to calculate the accuracy, we predict the result of training set and provide the result to evaluator.
-  The resulted accuracy of decision tree = 32.52%
+  The resulted accuracy of decision tree = 44.44%
   """
   dataset = loadTrainingData()
   inputList = []
@@ -132,6 +132,9 @@ def decisionTree():
   print ('acc: {0}'.format(accuracy))
 
 def naivebayes():
+  """
+  Accuracy: 42.3%
+  """
   data = loadTrainingData()
   data = pd.DataFrame(data)
   X = data[['areaFraction', 'aspectRatio', 'circularity', 'density','meanGray', 'modalGray', 'roundness', 'solidity', 'stdGray']]
@@ -149,4 +152,4 @@ def naivebayes():
 # saveTrainingData()
 # neuralNetwork()
 # decisionTree()
-# naivebayes()
+naivebayes()
