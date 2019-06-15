@@ -9,7 +9,7 @@ from sklearn import tree
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
 from keras.models import model_from_json
-
+from keras.utils import plot_model
 import graphviz
 from features import *
 from preprocessing import *
@@ -17,6 +17,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
 from sklearn import metrics
 import pandas as pd
+from ann_visualizer.visualize import ann_viz;
 
 np.random.seed(7)
 
@@ -99,6 +100,8 @@ def neuralNetwork():
   with open("../Data/nn_architecture.json", "w") as json_file:
       json_file.write(model_json)
   model.save_weights("../Data/nn_weights.h5")
+  plot_model(model, to_file='../Data/nn_model.png')
+  ann_viz(model, title='Tumor predictor')
 
 def decisionTree():
   """
@@ -144,7 +147,7 @@ def naivebayes():
   model.fit(X_train, y_train)
   GaussianNB(priors=None)
   y_pred = model.predict(X_test)
-  print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
+  # print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
   return model
 
 # loadTrainingData()
@@ -152,4 +155,4 @@ def naivebayes():
 # saveTrainingData()
 # neuralNetwork()
 # decisionTree()
-naivebayes()
+# naivebayes()

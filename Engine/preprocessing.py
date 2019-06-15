@@ -96,10 +96,10 @@ def histogramEqualization(path):
     image = cv.imread(fileName, cv.IMREAD_GRAYSCALE)
     imageEnhanced = cv.equalizeHist(image)
     stackedImages = np.hstack((image,imageEnhanced))
-    # cv.imshow('image {0}'.format(count+1), stackedImages)
     head, tail = ntpath.split(fileName)
     name = tail.replace('.jpg', '')
-    cv.imwrite('../Data/CT_enhanced/{0}.jpg'.format(name), imageEnhanced)
+    # # cv.imwrite('../Data/CT_enhanced/{0}.jpg'.format(name), imageEnhanced)
+    # cv.imshow('image {0}'.format(name), stackedImages)
     # cv.waitKey(0)
     # cv.destroyAllWindows()
 
@@ -133,11 +133,12 @@ def smoothDataset(path):
     sharpened = cv.filter2D(resizedImage, -1, kernelSharpening)
     head, tail = ntpath.split(fileName)
     name = tail.replace('.jpg', '')
-    cv.imwrite('../Data/CT_smoothed/{0}.jpg'.format(name),blurredImage)
-    cv.imwrite('../Data/CT_sharpened/{0}.jpg'.format(name), sharpened)
-    # cv.imshow('image {0}'.format(count+1), blurredImage)
-    # cv.waitKey(0)
-    # cv.destroyAllWindows()
+    # cv.imwrite('../Data/CT_smoothed/{0}.jpg'.format(name),blurredImage)
+    # cv.imwrite('../Data/CT_sharpened/{0}.jpg'.format(name), sharpened)
+    stackedImages = np.hstack((resizedImage,sharpened))
+    cv.imshow('image {0}'.format(name), stackedImages)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
 
 def erodeAndDilate(path):
   """
@@ -151,13 +152,13 @@ def erodeAndDilate(path):
     kernel = np.ones((5, 5), np.uint8)
     imageErosion = cv.erode(imageBW, kernel, iterations=1)
     imageDilation = cv.dilate(imageErosion, kernel, iterations=1)
-    stackedImages = np.hstack((imageDilation, image))
+    stackedImages = np.hstack((image, imageErosion))
     head, tail = ntpath.split(fileName)
     name = tail.replace('.jpg', '')
-    cv.imwrite('../Data/CT_raw/{0}.jpg'.format(name), imageDilation)
-    # cv.imshow('image {0}'.format(count+1), stackedImages)
-    # cv.waitKey(0)
-    # cv.destroyAllWindows()
+    # cv.imwrite('../Data/CT_raw/{0}.jpg'.format(name), imageDilation)
+    cv.imshow('image {0}'.format(name), stackedImages)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
 
 def cropImage(image, contour, index):
   """
@@ -245,8 +246,11 @@ def detectBrain(path):
       name = tail.replace('.jpg', '')
       # cv.imwrite('../Data/CT_cropped/{0}.jpg'.format(name), croppedImageSmoothed)
       imageCircled = cv.circle(image,center,radius,(150,70,50),3)
-      # stackedImages = np.hstack((image, actualImage))
-      cv.imwrite('../Data/CT_detected/{0}.jpg'.format(name), imageCircled)
+      # stackedImages = np.hstack((croppedImage, imageCircled))
+      # cv.imwrite('../Data/CT_detected/{0}.jpg'.format(name), imageCircled)
+      # cv.imshow('image {0}'.format(name), imageCircled)
+      # cv.waitKey(0)
+      # cv.destroyAllWindows()
   return circularityValues, roundnessValues, area, solidityValues
 
 
