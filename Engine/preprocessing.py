@@ -171,7 +171,7 @@ def cropImage(image, contour, index):
   xRect, yRect, wRect, hRect = cv.boundingRect(contour)
   croppedImage = image[yRect: yRect+hRect,
                xRect: xRect+wRect]
-  cv.imwrite('../Data/CT_cropped/{0}.jpg'.format(index), croppedImage)
+  # cv.imwrite('../Data/CT_cropped/{0}.jpg'.format(index), croppedImage)
   # cv.imshow('image {0}'.format(index+1),croppedImage)
   # cv.waitKey(0)
   # cv.destroyAllWindows()

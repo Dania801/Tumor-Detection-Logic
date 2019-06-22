@@ -21,9 +21,9 @@ class uploadImgHandler(tornado.web.RequestHandler):
       if result == 1:
         diagnosis = 'There is a tumor.'
       print (diagnosis)
-      self.render("index.html", display='inline', diagnosis=diagnosis)
+      self.render("index.html", display='inline', diagnosis=diagnosis, mri=f.filename)
   def get(self):
-    self.render("index.html", display='none', diagnosis='none')
+    self.render("index.html", display='none', diagnosis='none', mri='none')
 
 if (__name__ == "__main__"):
   app = tornado.web.Application([

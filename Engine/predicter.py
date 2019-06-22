@@ -51,7 +51,7 @@ def predictDiagnosis(image, imagePath):
 
 def main():
   warnings.filterwarnings("ignore")
-  imagePath = '../Data/CT/2.jpg';
+  imagePath = '../Data/CT/12.jpg';
   image = cv.imread(imagePath, cv.IMREAD_GRAYSCALE)
   result = predictDiagnosis(image, imagePath)
   print (result)
